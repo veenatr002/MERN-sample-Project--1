@@ -64,7 +64,10 @@ app.use(express.json());
 // const mongodbURL = "mongodb+srv://veenatr002_db_user:veenatr002_db_New@cluster0.ycjnxeh.mongodb.net/?appName=Cluster0";
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("mongodb connected"))
-.catch(()=> console.log("not connected"));
+.catch((error) => {
+    console.log("MongoDB connection error:");
+    console.log(error);
+});
 
 const DataSchema = mongoose.Schema({username:String,number:Number});
 const Data = mongoose.model("Data",DataSchema);
