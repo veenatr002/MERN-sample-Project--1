@@ -82,4 +82,11 @@ app.post("/data",(req,res)=>{
 })
 
 
+app.get("/data",(req,res)=>{
+    Data.find()
+    .then((data)=>res.json(data))
+    .catch(()=>res.send("error"))
+})
+
+
 app.listen(5000,()=>console.log("server is running on port 5000"))
