@@ -89,4 +89,39 @@ app.get("/data",(req,res)=>{
 })
 
 
+app.put("/data/:id",(req,res)=>{
+    const {username,number} = req.body
+    Data.findByIdAndUpdate(
+        req.params.id,
+        {
+            username : username,
+            number : number,
+        }, {new:true}
+    )
+    .then((updatedData)=>{
+        res.json(updatedData);
+    })
+    .catch((error)=>
+    {
+        console.log(error);
+        res.status(500).send("Erro updating data");
+    })
+})
+
+app.delete("/data/:id", (req,res)=> {
+    Data.findByIdAndDelete(req.params.id)
+    .then((deletedData)=>{
+        if(!deletedData){
+            return res.status(404).send("data not found");
+        }
+        res.send("Data deleted Successfully");
+
+    })
+    .catch((error)=>{
+        console.log("error",error);
+        res.status(500).send("Error deleting data");
+
+    })
+})
+
 app.listen(5000,()=>console.log("server is running on port 5000"))
