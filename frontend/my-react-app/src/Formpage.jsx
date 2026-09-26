@@ -3,18 +3,22 @@ import React, { useState } from 'react'
 function Formpage() {
     const [username,setUsername] = useState("");
     const [number,setNumber] = useState("");
+    const [image,setImage] = useState(null);
 
     const handlesubmit= (e)=>
     {
         e.preventDefault();
 
+        const formData = new FormData();
+
+        formData.append("username",username);
+        formData.append("number",number);
+        formData.append("image",image)
+
         fetch("http://localhost:5000/data",{
             method: "POST",
-            headers : {"content-Type" :"application/json"},
-            body : JSON.stringify({
-                username:username,
-                number:number
-            }),
+            
+            body : formData,
         })
         .then((res)=>res.text())
         .then((result)=>
@@ -43,6 +47,7 @@ function Formpage() {
     <form onSubmit={handlesubmit} className="space-y-4">
         <input type="text" placeholder="Username" value={username} onChange={(e)=>setUsername(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2"/>
         <input type="number" placeholder="enter number" value={number} onChange={(e)=>setNumber(e.target.value)} className="w-full border border-gray-300 rounded-lg px-4 py-2" />
+        <input type="file" id="imageInput" accept="image/" onChange={(e)=> setImage(e.target.files[0])} className="w-full border border-gray-300 rounded-lg px-4 py-2" />
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Submit</button>
     </form>
 

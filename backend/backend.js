@@ -54,12 +54,28 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 
 app.use(cors());
 app.use(express.urlencoded({extended:true}))
 app.use(express.json());
+app.use("/uploads",express.static("uploads"))
+
+const storage = multer.diskStorage(
+    {
+        destination: (req,file,cb) => {
+            cb(null,"uploads/")
+        },
+        filename: (req,file,cb) => {
+            cb(null,Date.now() + path.extname(file.originalname))
+        }
+    }
+)
+
+const upload = multer({ storage });
 
 // const mongodbURL = "mongodb+srv://veenatr002_db_user:veenatr002_db_New@cluster0.ycjnxeh.mongodb.net/?appName=Cluster0";
 mongoose.connect(process.env.MONGO_URI)
@@ -69,14 +85,21 @@ mongoose.connect(process.env.MONGO_URI)
     console.log(error);
 });
 
-const DataSchema = mongoose.Schema({username:String,number:Number});
+const DataSchema = mongoose.Schema({username:String,number:Number,image:String});
 const Data = mongoose.model("Data",DataSchema);
 
-app.post("/data",(req,res)=>{
+app.post("/data",upload.single("image"),(req,res)=>{
+
     const {username,number} = req.body;
-    const newdata = new Data({username,number});
+
+    const newdata = new Data({
+        username:username,
+        number:Number(number),
+        image:req.file ? req.file.filename : "",
+
+    });
     newdata.save()
-    .then(()=>res.send("Success"))
+    .then(()=>res.send("Data and Image uploaded successfully"))
     .catch(()=>res.send("Not connected"))
 
 })
@@ -89,14 +112,19 @@ app.get("/data",(req,res)=>{
 })
 
 
-app.put("/data/:id",(req,res)=>{
+app.put("/data/:id",upload.single("image"),(req,res)=>{
     const {username,number} = req.body
+
+    const updateData = {
+        username:username,
+        number:Number(number),
+    } 
+    if(req.file){
+        updateData.image = req.file.filename;
+    }
     Data.findByIdAndUpdate(
         req.params.id,
-        {
-            username : username,
-            number : number,
-        }, {new:true}
+        updateData, {new:true}
     )
     .then((updatedData)=>{
         res.json(updatedData);
